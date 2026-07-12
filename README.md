@@ -414,6 +414,11 @@ All major external API integrations have been implemented using official SDKs or
 #### 3D — n8n Workflow Trigger (`integrations/n8n_client.py`)
 - Implemented `trigger_workflow()` using `httpx` to send a structured `POST` payload to the n8n webhook URL (`/webhook/client-onboarding`).
 
+#### 3E — n8n Workflow Design (n8n UI / Export)
+- Created a complete, production-ready n8n workflow export (`n8n/n8n_client_onboarding_workflow.json`).
+- Workflow automatically handles: Slack alerts, Google Drive folder creation, Google Docs proposal generation, and a Gmail welcome email.
+- Provided a dedicated setup guide (`n8n/N8N_WORKFLOW_SETUP.md`) for seamless configuration of OAuth credentials and webhooks.
+
 ---
 
 ## 4. Getting Started & Installation
