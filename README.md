@@ -386,14 +386,33 @@ All 5 tables are live in PostgreSQL 17 via Alembic migration `923cf8c9a210`.
 | `ProposalService` | `services/proposal_service.py` | Calls OpenAI with research context to generate structured proposals |
 | `EmailService` | `services/email_service.py` | Generates contextual email copy for welcome, follow-up, and reminder flows |
 
-#### Integration Stubs (Active — to be replaced in Phase 3)
+#### Active Integrations (Replaced Stubs)
 
-| File | Replaces | Status |
+| File | Integrates With | Status |
 |---|---|---|
-| `integrations/zoho_crm.py` | Zoho CRM SDK calls | Stub — returns mock Zoho lead ID |
-| `integrations/openai_client.py` | OpenAI GPT-4.1 API calls | Stub — returns hardcoded analysis |
-| `integrations/tavily_client.py` | Tavily Search API calls | Stub — returns mock search result |
-| `integrations/n8n_client.py` | n8n webhook HTTP trigger | Stub — returns mock execution ID |
+| `integrations/zoho_crm.py` | Zoho CRM | ✅ Complete — Fully authenticates and pushes Leads |
+| `integrations/openai_client.py` | OpenAI GPT-4.1 | ✅ Complete — Analyzes research and generates structured proposals |
+| `integrations/tavily_client.py` | Tavily Search API | ✅ Complete — Fetches real-time company business intelligence |
+| `integrations/n8n_client.py` | n8n Webhook | ✅ Complete — Triggers onboarding workflow via `httpx` POST |
+
+### Phase 3: External API Integrations ✅ Complete
+
+All major external API integrations have been implemented using official SDKs or asynchronous HTTP clients.
+
+#### 3A — OpenAI Integration (`integrations/openai_client.py`)
+- Implemented `analyze_company()` using GPT-4.1 with a structured system prompt and JSON-mode response to extract opportunities, pain points, and strategic recommendations from Tavily research data.
+- Implemented `generate_proposal()` using GPT-4.1 with the analysis output as context, producing a complete, structured proposal with executive summary, scope, timeline, deliverables, and pricing.
+- Added basic token tracking for `tokens_used`.
+
+#### 3B — Tavily Integration (`integrations/tavily_client.py`)
+- Implemented `search_company()` using the Tavily Python SDK (`AsyncTavilyClient`) with domain-specific search queries targeting company news, financial health, technology stack, and industry trends.
+
+#### 3C — Zoho CRM Integration (`integrations/zoho_crm.py`)
+- Completed the OAuth2 initialization sequence using `zohocrmsdk7-0` — configuring `INDataCenter`, `OAuthToken`, and `FileStore` via FastAPI lifespan `init_zoho()`.
+- Implemented `create_lead()` to push new clients to Zoho CRM as `Leads` mapping all form fields accurately.
+
+#### 3D — n8n Workflow Trigger (`integrations/n8n_client.py`)
+- Implemented `trigger_workflow()` using `httpx` to send a structured `POST` payload to the n8n webhook URL (`/webhook/client-onboarding`).
 
 ---
 
@@ -581,44 +600,7 @@ docker compose down -v     # Stop containers AND delete all data volumes (destru
 
 ## 5. Future Roadmap — What We Will Build Next
 
-### Phase 3: External API Integrations — *Next*
-
-This phase replaces all integration stubs with real, fully-tested API implementations.
-
-#### 3A — OpenAI Integration (`integrations/openai_client.py`)
-- Implement `analyze_company()` using GPT-4.1 with a structured system prompt and JSON-mode response to extract opportunities, pain points, and strategic recommendations from Tavily research data.
-- Implement `generate_proposal()` using GPT-4.1 with the analysis output as context, producing a complete, structured proposal with executive summary, scope, timeline, deliverables, and pricing.
-- Add token tracking to record `tokens_used` per research call.
-- Add retry logic with exponential backoff for rate limit handling.
-
-#### 3B — Tavily Integration (`integrations/tavily_client.py`)
-- Implement `search_company()` using the Tavily Python SDK with domain-specific search queries targeting company news, financial health, technology stack, and industry trends.
-- Return structured `SearchResult` objects for consistent downstream consumption.
-
-#### 3C — Zoho CRM Integration (`integrations/zoho_crm.py`)
-- Complete the OAuth2 initialization sequence using `zohocrmsdk7-0` — grant token exchange, access token storage, and automatic refresh token management.
-- Implement `create_lead()` to push new clients to Zoho CRM as `Leads` and capture the returned Zoho lead ID back into the `clients` table.
-- Implement `update_lead()` to sync status changes back to Zoho.
-
-#### 3D — n8n Workflow Trigger (`integrations/n8n_client.py`)
-- Implement `trigger_workflow()` using `httpx` to send a structured `POST` payload to the n8n webhook URL (`/webhook/client-onboarding`).
-- Payload schema: `{client_id, workflow_id, company_name, contact_email, research_summary}`.
-
-#### 3E — n8n Workflow Design (in n8n UI)
-Configure the following multi-node workflow inside n8n's visual editor:
-
-```
-Webhook Trigger
-    └─► Set Client Context
-        ├─► Google Drive: Create Client Folder
-        │       └─► Google Docs: Create Proposal Document
-        │               └─► Google Docs: Write Proposal Content
-        ├─► Gmail: Send Welcome Email to Client
-        ├─► Slack: Post to #clientflow-alerts
-        └─► HTTP Request: POST /api/webhooks/n8n  (status callback)
-```
-
-### Phase 4: Frontend Dashboard (Next.js)
+### Phase 4: Frontend Dashboard (Next.js) — *Next*
 
 - Initialize a Next.js 15+ application in `frontend/` using `npx create-next-app@latest`.
 - Design system: Vanilla CSS with HSL color tokens; dark mode with glassmorphism accents; Google Fonts (Outfit + Inter).
