@@ -4,9 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import settings
 
+from integrations.zoho_crm import init_zoho
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup actions (e.g. init DB connection pool, Zoho SDK)
+    # Startup actions
+    init_zoho()
     yield
     # Shutdown actions
     pass
