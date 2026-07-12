@@ -419,6 +419,27 @@ All major external API integrations have been implemented using official SDKs or
 - Workflow automatically handles: Slack alerts, Google Drive folder creation, Google Docs proposal generation, and a Gmail welcome email.
 - Provided a dedicated setup guide (`n8n/N8N_WORKFLOW_SETUP.md`) for seamless configuration of OAuth credentials and webhooks.
 
+### Phase 4: Frontend Dashboard (Next.js) ✅ Complete
+
+- **Initialized a Next.js 15+ App Router application** in `frontend/` using TypeScript.
+- **Premium Vanilla CSS Design System**: Built a custom design system (`globals.css` and `layout.css`) utilizing HSL color tokens, dark mode with deep space blue backgrounds, and glassmorphism accents.
+- **Core Pages Built:**
+  - **`/` (Dashboard Overview)**: Live KPI cards (total clients, active/completed workflows), real-time activity feed visualization.
+  - **`/clients` (Client List)**: A clean data table showing all clients, statuses (using custom color-coded badges), and quick action links.
+  - **`/clients/new` (Client Intake Form)**: Multi-step form for adding a new client; wired to `POST /api/clients`.
+  - **`/clients/[id]` (Client Detail)**: Full client profile, workflow timeline, AI research summary insights (Opportunities/Pain Points), proposal preview, and Google Doc link.
+  - **`/workflows` (Workflow Monitor)**: Real-time status board showing all onboarding pipelines and their current steps.
+- **API Integration**: Implemented `frontend/src/services/api.ts` to fetch data from the FastAPI backend securely.
+
+### Phase 5: Error Handling, Logging & Polish ✅ Complete
+
+- **Structured JSON Logging (`backend/core/logging.py`)**: Configured Python's native `logging` module to output strict JSON formatting (including timestamps, log levels, and stack traces) ideal for modern log aggregators.
+- **Custom Exception Hierarchy (`backend/core/exceptions.py`)**: Created `ClientFlowException` and specific error types (`ZohoCRMError`, `OpenAIError`, `TavilyError`, `N8nError`, `WorkflowError`) to fail gracefully when third-party services encounter issues.
+- **Global Exception Handler & Middleware (`backend/main.py`)**: 
+  - Intercepts `ClientFlowException` and translates it into clean JSON HTTP responses.
+  - Added timing middleware that calculates exact execution time (`process_time`) and injects an `X-Process-Time` header.
+- **Exponential Backoff Retry (`backend/utils/retry.py`)**: Implemented an `async_retry` decorator to gracefully handle transient failures from flaky external APIs (like OpenAI or Tavily).
+
 ---
 
 ## 4. Getting Started & Installation
@@ -605,50 +626,37 @@ docker compose down -v     # Stop containers AND delete all data volumes (destru
 
 ## 5. Future Roadmap — What We Will Build Next
 
-### Phase 4: Frontend Dashboard (Next.js) — *Next*
-
-- Initialize a Next.js 15+ application in `frontend/` using `npx create-next-app@latest`.
-- Design system: Vanilla CSS with HSL color tokens; dark mode with glassmorphism accents; Google Fonts (Outfit + Inter).
-- **Pages to build:**
-  - **`/`** — Dashboard Overview: KPI cards (total clients, active/completed/failed workflows), live activity feed, recent client table.
-  - **`/clients`** — Client List: Searchable, sortable table with status badges and quick-action buttons.
-  - **`/clients/new`** — Client Intake Form: Multi-step form for adding a new client; auto-triggers the full pipeline on submission.
-  - **`/clients/[id]`** — Client Detail: Full client profile, workflow timeline, AI research summary, proposal preview, and Google Doc link.
-  - **`/workflows`** — Workflow Monitor: Real-time status board showing all onboarding pipelines and their current steps.
-- **API Integration:** All pages consume data from the FastAPI backend via `fetch()` calls to `NEXT_PUBLIC_API_URL`.
-- **Premium UI components:** Micro-animations on cards, smooth gradient status badges, hover effects on table rows, and animated activity timeline.
-
-### Phase 5: Zoho CRM Bidirectional Sync
+### Phase 6: Zoho CRM Bidirectional Sync — *Next*
 
 - Implement a Zoho CRM webhook listener (`/api/webhooks/zoho`) to receive real-time lead status updates from Zoho.
 - On status change in Zoho (e.g., Lead → Qualified), automatically update the client record in PostgreSQL and trigger corresponding n8n actions (e.g., send a follow-up email).
 
-### Phase 6: Authentication & Multi-User Support
+### Phase 7: Authentication & Multi-User Support
 
 - Implement JWT-based authentication (`python-jose`) with user login, registration, and session management.
 - Add a `users` table and associate clients and workflows with a specific user/team.
 - Implement role-based access control (RBAC): `admin` (full access), `manager` (read-write), `viewer` (read-only).
 - Add middleware to protect all `/api/*` endpoints.
 
-### Phase 7: Real-Time Updates via WebSocket
+### Phase 8: Real-Time Updates via WebSocket
 
 - Add a WebSocket endpoint (`/ws/activity`) to the FastAPI backend using `fastapi.WebSocket`.
 - Frontend subscribes and receives real-time activity events as they happen — no polling.
 - Activity feed, workflow status board, and KPI cards all update live without page refresh.
 
-### Phase 8: AI-Powered Follow-Up Automation
+### Phase 9: AI-Powered Follow-Up Automation
 
 - Implement a scheduled task (APScheduler or Celery with Redis) to scan for clients who have been in onboarding for more than 48 hours without progression.
 - Automatically generate contextual follow-up emails using GPT-4.1 and queue them for delivery via n8n's Gmail node.
 - Add a manual "Send Follow-Up" button on the Client Detail page.
 
-### Phase 9: Proposal Approval & Signing Flow
+### Phase 10: Proposal Approval & Signing Flow
 
 - Integrate with an e-signature service (DocuSign or PandaDoc API) to convert AI-generated proposals into signable documents.
 - Add a `signed_at` column and `signed_doc_url` to the `proposals` table.
 - Trigger a Slack notification when a proposal is signed.
 
-### Phase 10: Analytics & Reporting Dashboard
+### Phase 11: Analytics & Reporting Dashboard
 
 - Add a dedicated analytics page showing:
   - Client conversion funnel (lead → onboarded → active)
@@ -657,7 +665,7 @@ docker compose down -v     # Stop containers AND delete all data volumes (destru
   - Workflow failure rate and most common failure points
 - Export reports as PDF or CSV.
 
-### Phase 11: Production Deployment
+### Phase 12: Production Deployment
 
 - **Containerize backend:** Create a production `Dockerfile` for the FastAPI application.
 - **Compose for production:** Add a production `docker-compose.prod.yml` with PostgreSQL, Redis, backend, and reverse proxy.
