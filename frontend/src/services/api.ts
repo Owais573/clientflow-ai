@@ -43,6 +43,23 @@ export interface DashboardStats {
   failed_workflows: number;
 }
 
+export interface Research {
+  id: number;
+  client_id: number;
+  ai_summary?: string;
+  ai_opportunities?: string[];
+  ai_pain_points?: string[];
+  ai_recommendations?: string[];
+}
+
+export interface Proposal {
+  id: number;
+  client_id: number;
+  executive_summary?: string;
+  pricing_template?: Record<string, string>;
+  google_doc_url?: string;
+}
+
 export interface Activity {
   id: number;
   client_id: number;
@@ -79,7 +96,7 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
 export const api = {
   // Dashboard
   getDashboardStats: () => fetchAPI<DashboardStats>('/dashboard/stats'),
-  getRecentActivity: () => fetchAPI<Activity[]>('/dashboard/activity'),
+  getRecentActivity: () => fetchAPI<any>('/dashboard/activities'),
   
   // Clients
   getClients: () => fetchAPI<Client[]>('/clients'),
@@ -90,6 +107,10 @@ export const api = {
   }),
   
   // Workflows
-  getWorkflows: () => fetchAPI<Workflow[]>('/workflows'),
+  getWorkflows: () => fetchAPI<any>('/workflows'),
   getWorkflowByClientId: (clientId: number) => fetchAPI<Workflow[]>(`/workflows/client/${clientId}`),
+  
+  // Research & Proposals
+  getResearch: (clientId: number) => fetchAPI<Research>(`/research/client/${clientId}`),
+  getProposal: (clientId: number) => fetchAPI<Proposal>(`/proposal/client/${clientId}`),
 };

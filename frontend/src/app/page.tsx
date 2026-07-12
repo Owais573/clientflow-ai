@@ -9,23 +9,9 @@ export default async function DashboardPage() {
   let activities: any[] = [];
 
   try {
-    // We are mocking this for now until the backend is fully running alongside
-    // In production, these would be:
-    // stats = await api.getDashboardStats();
-    // activities = await api.getRecentActivity();
-    
-    stats = {
-      total_clients: 12,
-      active_workflows: 3,
-      completed_workflows: 42,
-      failed_workflows: 1
-    };
-    
-    activities = [
-      { id: 1, event_type: 'workflow_started', message: 'Client onboarding started for Acme Corp', level: 'info', created_at: new Date().toISOString() },
-      { id: 2, event_type: 'research_completed', message: 'AI research generated for Beta Inc', level: 'info', created_at: new Date(Date.now() - 3600000).toISOString() },
-      { id: 3, event_type: 'zoho_sync_failed', message: 'Failed to sync Lead to Zoho CRM', level: 'error', created_at: new Date(Date.now() - 7200000).toISOString() },
-    ];
+    stats = await api.getDashboardStats();
+    const activitiesResponse = await api.getRecentActivity();
+    activities = activitiesResponse.items || [];
   } catch (error) {
     console.error("Failed to load dashboard data:", error);
   }

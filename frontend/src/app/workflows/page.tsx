@@ -2,17 +2,24 @@ import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Activity } from 'lucide-react';
 import Link from 'next/link';
+import { api } from '@/services/api';
 
 export default async function WorkflowsPage() {
   let workflows: any[] = [];
 
   try {
-    // Mock data for UI layout
-    workflows = [
-      { id: 101, client_id: 1, company_name: "Acme Corp", status: "completed", current_step: "n8n_pipeline_completed", started_at: new Date(Date.now() - 3600000).toISOString(), n8n_execution_id: "12345" },
-      { id: 102, client_id: 2, company_name: "Globex Inc", status: "running", current_step: "generating_proposal", started_at: new Date(Date.now() - 1800000).toISOString(), n8n_execution_id: null },
-      { id: 103, client_id: 3, company_name: "Initech", status: "failed", current_step: "zoho_sync", started_at: new Date(Date.now() - 7200000).toISOString(), n8n_execution_id: null },
-    ];
+    const [workflowsRes, clientsRes] = await Promise.all([
+      api.getWorkflows(),
+      api.getClients() as any
+    ]);
+    
+    const clients = clientsRes.items || clientsRes;
+    const clientMap = new Map(clients.map((c: any) => [c.id, c.company_name]));
+
+    workflows = (workflowsRes.items || workflowsRes).map((wf: any) => ({
+      ...wf,
+      company_name: clientMap.get(wf.client_id) || `Client #${wf.client_id}`
+    }));
   } catch (error) {
     console.error("Failed to load workflows:", error);
   }
@@ -61,14 +68,14 @@ export default async function WorkflowsPage() {
                     <td style={{ padding: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         {wf.status === 'running' && <Activity size={14} className="animate-pulse" style={{ color: 'hsl(var(--accent-blue))' }} />}
-                        <span style={{ fontSize: '0.875rem' }}>{wf.current_step.replace(/_/g, ' ')}</span>
+                        <span style={{ fontSize: '0.875rem' }}>{wf.current_step ? wf.current_step.replace(/_/g, ' ') : 'Pending'}</span>
                       </div>
                     </td>
                     <td style={{ padding: '1rem' }}>
                       <StatusBadge status={wf.status} />
                     </td>
                     <td style={{ padding: '1rem', color: 'hsl(var(--text-secondary))', fontSize: '0.875rem' }}>
-                      {new Date(wf.started_at).toLocaleString()}
+                      {wf.started_at ? new Date(wf.started_at).toLocaleString() : '-'}
                     </td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>
                       {wf.n8n_execution_id ? (

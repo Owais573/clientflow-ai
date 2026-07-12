@@ -440,6 +440,13 @@ All major external API integrations have been implemented using official SDKs or
   - Added timing middleware that calculates exact execution time (`process_time`) and injects an `X-Process-Time` header.
 - **Exponential Backoff Retry (`backend/utils/retry.py`)**: Implemented an `async_retry` decorator to gracefully handle transient failures from flaky external APIs (like OpenAI or Tavily).
 
+### Phase 6: Frontend & Backend Un-Mocking (Full End-to-End Integration) ✅ Complete
+
+- **Dashboard Integration**: Wired `app/page.tsx` to `/api/dashboard/stats` and `/api/dashboard/activities` for real-time live metrics.
+- **Client Management**: Connected `app/clients/page.tsx` and `app/clients/[id]/page.tsx` to fetch live client records, workflows, AI research insights, and generated proposals directly from the backend endpoints.
+- **Workflow & Activity Tracking**: Built a dedicated Activity Log page (`/activities`) and completely unmocked the Workflow History page (`/workflows`) by dynamically mapping relational data.
+- **Graceful Fallbacks**: Implemented smart loading states and fallback UI components for pending AI processes, ensuring the application remains robust during intermediate n8n execution phases.
+
 ---
 
 ## 4. Getting Started & Installation
@@ -626,37 +633,37 @@ docker compose down -v     # Stop containers AND delete all data volumes (destru
 
 ## 5. Future Roadmap — What We Will Build Next
 
-### Phase 6: Zoho CRM Bidirectional Sync — *Next*
+### Phase 7: Zoho CRM Bidirectional Sync — *Next*
 
 - Implement a Zoho CRM webhook listener (`/api/webhooks/zoho`) to receive real-time lead status updates from Zoho.
 - On status change in Zoho (e.g., Lead → Qualified), automatically update the client record in PostgreSQL and trigger corresponding n8n actions (e.g., send a follow-up email).
 
-### Phase 7: Authentication & Multi-User Support
+### Phase 8: Authentication & Multi-User Support
 
 - Implement JWT-based authentication (`python-jose`) with user login, registration, and session management.
 - Add a `users` table and associate clients and workflows with a specific user/team.
 - Implement role-based access control (RBAC): `admin` (full access), `manager` (read-write), `viewer` (read-only).
 - Add middleware to protect all `/api/*` endpoints.
 
-### Phase 8: Real-Time Updates via WebSocket
+### Phase 9: Real-Time Updates via WebSocket
 
 - Add a WebSocket endpoint (`/ws/activity`) to the FastAPI backend using `fastapi.WebSocket`.
 - Frontend subscribes and receives real-time activity events as they happen — no polling.
 - Activity feed, workflow status board, and KPI cards all update live without page refresh.
 
-### Phase 9: AI-Powered Follow-Up Automation
+### Phase 10: AI-Powered Follow-Up Automation
 
 - Implement a scheduled task (APScheduler or Celery with Redis) to scan for clients who have been in onboarding for more than 48 hours without progression.
 - Automatically generate contextual follow-up emails using GPT-4.1 and queue them for delivery via n8n's Gmail node.
 - Add a manual "Send Follow-Up" button on the Client Detail page.
 
-### Phase 10: Proposal Approval & Signing Flow
+### Phase 11: Proposal Approval & Signing Flow
 
 - Integrate with an e-signature service (DocuSign or PandaDoc API) to convert AI-generated proposals into signable documents.
 - Add a `signed_at` column and `signed_doc_url` to the `proposals` table.
 - Trigger a Slack notification when a proposal is signed.
 
-### Phase 11: Analytics & Reporting Dashboard
+### Phase 12: Analytics & Reporting Dashboard
 
 - Add a dedicated analytics page showing:
   - Client conversion funnel (lead → onboarded → active)
@@ -665,7 +672,7 @@ docker compose down -v     # Stop containers AND delete all data volumes (destru
   - Workflow failure rate and most common failure points
 - Export reports as PDF or CSV.
 
-### Phase 12: Production Deployment
+### Phase 13: Production Deployment
 
 - **Containerize backend:** Create a production `Dockerfile` for the FastAPI application.
 - **Compose for production:** Add a production `docker-compose.prod.yml` with PostgreSQL, Redis, backend, and reverse proxy.

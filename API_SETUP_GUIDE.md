@@ -61,7 +61,7 @@ After creating the OAuth client, you need a one-time **Grant Token** (authorizat
    Replace `YOUR_CLIENT_ID` with your actual Client ID from Step 1, then open this URL in your browser:
 
    ```
-   https://accounts.zoho.in/oauth/v2/auth?scope=ZohoCRM.modules.ALL,ZohoCRM.settings.ALL,ZohoCRM.users.ALL&client_id=YOUR_CLIENT_ID&response_type=code&access_type=offline&redirect_uri=http://localhost:8000/api/zoho/callback
+   https://accounts.zoho.in/oauth/v2/auth?scope=ZohoCRM.modules.ALL,ZohoCRM.settings.ALL,ZohoCRM.users.ALL,ZohoCRM.org.ALL&client_id=YOUR_CLIENT_ID&response_type=code&access_type=offline&redirect_uri=http://localhost:8000/api/zoho/callback
    ```
 
 2. **Accept the permissions:**

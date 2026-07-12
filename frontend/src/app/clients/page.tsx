@@ -8,15 +8,8 @@ export default async function ClientsPage() {
   let clients: Client[] = [];
 
   try {
-    // In production, uncomment:
-    // clients = await api.getClients();
-    
-    // Mock data for UI development
-    clients = [
-      { id: 1, company_name: "Acme Corp", contact_name: "Jane Doe", email: "jane@acme.com", status: "onboarded", created_at: new Date(Date.now() - 86400000 * 5).toISOString() },
-      { id: 2, company_name: "Globex Inc", contact_name: "John Smith", email: "john@globex.com", status: "running", created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
-      { id: 3, company_name: "Initech", contact_name: "Peter Gibbons", email: "peter@initech.com", status: "pending", created_at: new Date().toISOString() },
-    ];
+    const response = await api.getClients() as any;
+    clients = response.items || response;
   } catch (error) {
     console.error("Failed to load clients:", error);
   }

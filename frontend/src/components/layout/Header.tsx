@@ -1,4 +1,5 @@
 import { Search, Bell } from 'lucide-react';
+import Link from 'next/link';
 import './layout.css';
 
 export default function Header() {
@@ -18,9 +19,9 @@ export default function Header() {
           <Bell size={20} />
           <span className="notification-dot"></span>
         </button>
-        <button className="btn btn-primary animate-fade-in">
+        <Link href="/clients/new" className="btn btn-primary animate-fade-in">
           + New Client
-        </button>
+        </Link>
       </div>
     </header>
   );

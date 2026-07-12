@@ -50,3 +50,7 @@ n8n_data/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Zoho SDK generated files
+zoho_tokens.txt
+zoho_sdk.log
