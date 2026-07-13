@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from models.client import Client
 from schemas.client import ClientCreate, ClientUpdate
-from integrations.zoho_crm import create_lead
+from integrations.zoho_crm import create_lead, delete_lead
 
 async def create_client(db: AsyncSession, client_in: ClientCreate) -> Client:
     client_data = client_in.model_dump()
@@ -14,11 +14,11 @@ async def create_client(db: AsyncSession, client_in: ClientCreate) -> Client:
     await db.refresh(db_client)
     
     # Sync with Zoho CRM
-    # zoho_id = await create_lead(db_client)
-    # if zoho_id:
-    #     db_client.zoho_lead_id = zoho_id
-    #     await db.commit()
-    #     await db.refresh(db_client)
+    zoho_id = await create_lead(db_client)
+    if zoho_id:
+        db_client.zoho_lead_id = zoho_id
+        await db.commit()
+        await db.refresh(db_client)
         
     return db_client
 
@@ -48,6 +48,23 @@ async def delete_client(db: AsyncSession, client_id: int) -> bool:
     if not db_client:
         return False
         
+    # Cascade delete to Zoho CRM if lead exists
+    if db_client.zoho_lead_id:
+        await delete_lead(db_client.zoho_lead_id)
+        
     await db.delete(db_client)
     await db.commit()
     return True
+
+async def sync_client_to_zoho(db: AsyncSession, client_id: int) -> Optional[Client]:
+    db_client = await get_client(db, client_id)
+    if not db_client or db_client.zoho_lead_id:
+        return db_client # Already synced or not found
+        
+    zoho_id = await create_lead(db_client)
+    if zoho_id:
+        db_client.zoho_lead_id = zoho_id
+        await db.commit()
+        await db.refresh(db_client)
+        
+    return db_client

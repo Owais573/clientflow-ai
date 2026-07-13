@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -10,8 +10,8 @@ from services import workflow_service
 router = APIRouter()
 
 @router.post("/start", response_model=WorkflowResponse)
-async def start_workflow(client_id: int, db: AsyncSession = Depends(get_db)):
-    db_workflow = await workflow_service.start_workflow(db, client_id)
+async def start_workflow(client_id: int, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    db_workflow = await workflow_service.start_workflow(db, client_id, background_tasks)
     if not db_workflow:
         raise HTTPException(status_code=404, detail="Client not found")
     return db_workflow
@@ -21,6 +21,13 @@ async def list_workflows(skip: int = 0, limit: int = 100, db: AsyncSession = Dep
     result = await db.execute(select(Workflow).offset(skip).limit(limit))
     workflows = result.scalars().all()
     return {"total": len(workflows), "items": workflows}
+
+@router.get("/client/{client_id}", response_model=WorkflowResponse)
+async def get_workflow_by_client(client_id: int, db: AsyncSession = Depends(get_db)):
+    db_workflow = await workflow_service.get_workflow_by_client(db, client_id)
+    if not db_workflow:
+        raise HTTPException(status_code=404, detail="Workflow not found")
+    return db_workflow
 
 @router.get("/{workflow_id}", response_model=WorkflowResponse)
 async def get_workflow(workflow_id: int, db: AsyncSession = Depends(get_db)):

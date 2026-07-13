@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
@@ -10,10 +10,10 @@ from services import workflow_service
 router = APIRouter()
 
 @router.post("", response_model=ClientResponse, status_code=status.HTTP_201_CREATED)
-async def create_client(client_in: ClientCreate, db: AsyncSession = Depends(get_db)):
+async def create_client(client_in: ClientCreate, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     db_client = await client_service.create_client(db, client_in)
-    # Start onboarding workflow automatically
-    await workflow_service.start_workflow(db, db_client.id)
+    # Start onboarding workflow automatically in background
+    await workflow_service.start_workflow(db, db_client.id, background_tasks)
     return db_client
 
 @router.get("", response_model=ClientListResponse)
@@ -40,3 +40,10 @@ async def delete_client(client_id: int, db: AsyncSession = Depends(get_db)):
     success = await client_service.delete_client(db, client_id)
     if not success:
         raise HTTPException(status_code=404, detail="Client not found")
+
+@router.post("/{client_id}/sync-zoho", response_model=ClientResponse)
+async def sync_zoho(client_id: int, db: AsyncSession = Depends(get_db)):
+    db_client = await client_service.sync_client_to_zoho(db, client_id)
+    if not db_client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return db_client

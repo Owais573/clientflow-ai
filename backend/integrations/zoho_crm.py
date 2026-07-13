@@ -51,7 +51,7 @@ def init_zoho():
 
 def _sync_create_lead(client_data: Dict[str, Any]) -> Optional[str]:
     try:
-        record_operations = RecordOperations()
+        record_operations = RecordOperations("Leads")
         request = BodyWrapper()
         lead = Record()
         
@@ -74,7 +74,7 @@ def _sync_create_lead(client_data: Dict[str, Any]) -> Optional[str]:
         
         request.set_data([lead])
         
-        response = record_operations.create_records("Leads", request)
+        response = record_operations.create_records(request)
         if response is not None:
             if response.get_status_code() in [200, 201]:
                 action_responses = response.get_object().get_data()
@@ -92,3 +92,27 @@ async def create_lead(client_data: Dict[str, Any]) -> Optional[str]:
     Runs the synchronous SDK call in a thread pool.
     """
     return await asyncio.to_thread(_sync_create_lead, client_data)
+
+def _sync_delete_lead(zoho_lead_id: str) -> bool:
+    try:
+        record_operations = RecordOperations("Leads")
+        # Ensure ID is a valid integer since Zoho expects int for ID
+        lead_id_int = int(zoho_lead_id)
+        response = record_operations.delete_record(lead_id_int)
+        
+        if response is not None:
+            if response.get_status_code() in [200, 201]:
+                return True
+    except Exception as e:
+        print(f"Error deleting Zoho lead: {e}")
+    
+    return False
+
+async def delete_lead(zoho_lead_id: str) -> bool:
+    """
+    Deletes a Lead in Zoho CRM by its Zoho Lead ID.
+    Runs the synchronous SDK call in a thread pool.
+    """
+    if not zoho_lead_id:
+        return False
+    return await asyncio.to_thread(_sync_delete_lead, zoho_lead_id)

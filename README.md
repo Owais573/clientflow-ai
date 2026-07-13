@@ -341,7 +341,8 @@ All 5 tables are live in PostgreSQL 17 via Alembic migration `923cf8c9a210`.
 | `GET` | `/api/clients` | List all clients (paginated via `skip` / `limit`) |
 | `GET` | `/api/clients/{id}` | Get a single client by ID |
 | `PUT` | `/api/clients/{id}` | Update a client record |
-| `DELETE` | `/api/clients/{id}` | Delete a client and all related records (CASCADE) |
+| `DELETE` | `/api/clients/{id}` | Delete a client and all related records (CASCADE to DB and Zoho CRM) |
+| `POST` | `/api/clients/{id}/sync-zoho` | Manually trigger a Zoho CRM sync for a client |
 
 **Workflows — `/api/workflows`**
 | Method | Path | Description |
@@ -349,16 +350,19 @@ All 5 tables are live in PostgreSQL 17 via Alembic migration `923cf8c9a210`.
 | `POST` | `/api/workflows/start` | Manually trigger a new onboarding workflow for a client |
 | `GET` | `/api/workflows` | List all workflows (paginated) |
 | `GET` | `/api/workflows/{id}` | Get details for a single workflow |
+| `GET` | `/api/workflows/client/{id}` | Get the active workflow for a specific client |
 
 **Research — `/api/research`**
 | Method | Path | Description |
 |---|---|---|
 | `POST` | `/api/research/company` | Trigger AI research for a given `client_id` |
+| `GET` | `/api/research/client/{id}` | Get research results for a specific client |
 
 **Proposals — `/api/proposals`**
 | Method | Path | Description |
 |---|---|---|
 | `POST` | `/api/proposals/generate` | Generate AI proposal based on existing research for a `client_id` |
+| `GET` | `/api/proposal/client/{id}` | Get the generated proposal for a specific client |
 
 **Dashboard — `/api/dashboard`**
 | Method | Path | Description |
@@ -380,8 +384,8 @@ All 5 tables are live in PostgreSQL 17 via Alembic migration `923cf8c9a210`.
 
 | Service | File | Responsibility |
 |---|---|---|
-| `ClientService` | `services/client_service.py` | CRUD operations; Zoho CRM sync hook |
-| `WorkflowService` | `services/workflow_service.py` | Creates workflow records; logs activity; triggers n8n |
+| `ClientService` | `services/client_service.py` | CRUD operations; Zoho CRM sync and cascading deletions |
+| `WorkflowService` | `services/workflow_service.py` | Orchestrates the AI pipeline via FastAPI `BackgroundTasks`; triggers n8n |
 | `ResearchService` | `services/research_service.py` | Orchestrates Tavily search + OpenAI analysis pipeline |
 | `ProposalService` | `services/proposal_service.py` | Calls OpenAI with research context to generate structured proposals |
 | `EmailService` | `services/email_service.py` | Generates contextual email copy for welcome, follow-up, and reminder flows |
@@ -425,9 +429,9 @@ All major external API integrations have been implemented using official SDKs or
 - **Premium Vanilla CSS Design System**: Built a custom design system (`globals.css` and `layout.css`) utilizing HSL color tokens, dark mode with deep space blue backgrounds, and glassmorphism accents.
 - **Core Pages Built:**
   - **`/` (Dashboard Overview)**: Live KPI cards (total clients, active/completed workflows), real-time activity feed visualization.
-  - **`/clients` (Client List)**: A clean data table showing all clients, statuses (using custom color-coded badges), and quick action links.
+  - **`/clients` (Client List)**: A clean data table showing all clients, custom status badges, seamless row-click navigation, and a custom React UI Modal for cascading deletion confirmation.
   - **`/clients/new` (Client Intake Form)**: Multi-step form for adding a new client; wired to `POST /api/clients`.
-  - **`/clients/[id]` (Client Detail)**: Full client profile, workflow timeline, AI research summary insights (Opportunities/Pain Points), proposal preview, and Google Doc link.
+  - **`/clients/[id]` (Client Detail)**: Full client profile, workflow timeline, AI research summary insights (Opportunities/Pain Points), proposal preview, Google Doc link, and a manual "Sync Zoho" trigger button.
   - **`/workflows` (Workflow Monitor)**: Real-time status board showing all onboarding pipelines and their current steps.
 - **API Integration**: Implemented `frontend/src/services/api.ts` to fetch data from the FastAPI backend securely.
 

@@ -105,6 +105,9 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+  deleteClient: (id: number) => fetchAPI<void>(`/clients/${id}`, {
+    method: 'DELETE',
+  }),
   
   // Workflows
   getWorkflows: () => fetchAPI<any>('/workflows'),

@@ -3,9 +3,10 @@ import { ArrowLeft, ExternalLink, RefreshCw, FileText, Bot, Briefcase } from 'lu
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { api, Client, Workflow, Research, Proposal } from '@/services/api';
+import SyncZohoButton from './SyncZohoButton';
 
-export default async function ClientDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   
   let client: Client | null = null;
   let workflow: Workflow | null = null;
@@ -46,9 +47,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         </div>
         
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="btn btn-secondary">
-            <RefreshCw size={16} /> Sync Zoho
-          </button>
+          <SyncZohoButton clientId={client.id} hasZohoId={!!client.zoho_lead_id} />
           {proposal?.google_doc_url && (
             <a href={proposal.google_doc_url} target="_blank" rel="noreferrer" className="btn btn-primary">
               <ExternalLink size={16} /> View Proposal Doc

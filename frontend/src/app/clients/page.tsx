@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { Plus, MoreVertical } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { api, Client } from '@/services/api';
+import ClientTableBody from './ClientTableBody';
 
 export default async function ClientsPage() {
   let clients: Client[] = [];
@@ -39,43 +40,7 @@ export default async function ClientsPage() {
                 <th style={{ padding: '1rem', textAlign: 'right' }}></th>
               </tr>
             </thead>
-            <tbody>
-              {clients.length === 0 ? (
-                <tr>
-                  <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: 'hsl(var(--text-muted))' }}>
-                    No clients found. Add one to get started.
-                  </td>
-                </tr>
-              ) : (
-                clients.map((client) => (
-                  <tr key={client.id} style={{ 
-                    borderBottom: '1px solid hsl(var(--border-light))',
-                    transition: 'background 0.2s ease',
-                    cursor: 'pointer'
-                  }} className="client-row">
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ fontWeight: 600 }}>{client.company_name}</div>
-                      <div className="text-muted text-sm">{client.industry || 'Unknown Industry'}</div>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div>{client.contact_name}</div>
-                      <div className="text-muted text-sm">{client.email}</div>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <StatusBadge status={client.status} />
-                    </td>
-                    <td style={{ padding: '1rem', color: 'hsl(var(--text-secondary))', fontSize: '0.875rem' }}>
-                      {new Date(client.created_at).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: '1rem', textAlign: 'right' }}>
-                      <Link href={`/clients/${client.id}`} className="btn btn-ghost" style={{ padding: '0.5rem' }}>
-                        <MoreVertical size={18} />
-                      </Link>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
+            <ClientTableBody initialClients={clients} />
           </table>
         </div>
       </Card>
