@@ -451,6 +451,16 @@ All major external API integrations have been implemented using official SDKs or
 - **Workflow & Activity Tracking**: Built a dedicated Activity Log page (`/activities`) and completely unmocked the Workflow History page (`/workflows`) by dynamically mapping relational data.
 - **Graceful Fallbacks**: Implemented smart loading states and fallback UI components for pending AI processes, ensuring the application remains robust during intermediate n8n execution phases.
 
+### Phase 6.5: Bug Fixes & Stability (Recent Updates) ✅ Complete
+
+- **Zoho CRM Sync Reliability**: 
+  - Updated Zoho CRM SDK usage to v7 API patterns (`Field.Leads.*`).
+  - Fixed a critical Windows encoding crash by removing Unicode emojis from backend console logs that were silently killing the background worker during lead creation.
+  - Implemented thread-safe Zoho SDK re-initialization for `asyncio.to_thread()` background tasks.
+- **Frontend Real-Time Polling**: Fixed the infinite loading spinner on the proposal generation page. Transitioned the client detail page from a static Server Component to a Client Component with automatic 5-second polling to reflect background AI pipeline updates in real-time.
+- **API Routing Consistency**: Corrected mismatched pluralization in the frontend API calls (e.g., calling `/api/proposals/` instead of `/api/proposal/`).
+- **Workflow State Management**: Ensured the backend properly marks workflow status as `completed` with a `completed_at` timestamp after the n8n webhook successfully triggers, unblocking the UI state machine.
+
 ---
 
 ## 4. Getting Started & Installation
