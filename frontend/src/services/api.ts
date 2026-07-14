@@ -111,9 +111,9 @@ export const api = {
   
   // Workflows
   getWorkflows: () => fetchAPI<any>('/workflows'),
-  getWorkflowByClientId: (clientId: number) => fetchAPI<Workflow[]>(`/workflows/client/${clientId}`),
+  getWorkflowByClientId: (clientId: number) => fetchAPI<Workflow>(`/workflows/client/${clientId}`),
   
   // Research & Proposals
   getResearch: (clientId: number) => fetchAPI<Research>(`/research/client/${clientId}`),
-  getProposal: (clientId: number) => fetchAPI<Proposal>(`/proposal/client/${clientId}`),
+  getProposal: (clientId: number) => fetchAPI<Proposal>(`/proposals/client/${clientId}`),
 };

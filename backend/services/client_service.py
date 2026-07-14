@@ -14,7 +14,13 @@ async def create_client(db: AsyncSession, client_in: ClientCreate) -> Client:
     await db.refresh(db_client)
     
     # Sync with Zoho CRM
-    zoho_id = await create_lead(db_client)
+    zoho_id = await create_lead({
+        "company_name": db_client.company_name,
+        "contact_name": db_client.contact_name,
+        "email": db_client.email,
+        "phone": db_client.phone,
+        "website": db_client.website
+    })
     if zoho_id:
         db_client.zoho_lead_id = zoho_id
         await db.commit()
@@ -61,7 +67,13 @@ async def sync_client_to_zoho(db: AsyncSession, client_id: int) -> Optional[Clie
     if not db_client or db_client.zoho_lead_id:
         return db_client # Already synced or not found
         
-    zoho_id = await create_lead(db_client)
+    zoho_id = await create_lead({
+        "company_name": db_client.company_name,
+        "contact_name": db_client.contact_name,
+        "email": db_client.email,
+        "phone": db_client.phone,
+        "website": db_client.website
+    })
     if zoho_id:
         db_client.zoho_lead_id = zoho_id
         await db.commit()

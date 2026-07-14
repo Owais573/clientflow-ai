@@ -49,8 +49,21 @@ def init_zoho():
     except Exception as e:
         print(f"Failed to initialize Zoho CRM SDK: {e}")
 
+def _ensure_zoho_initialized():
+    """Re-initialize Zoho SDK in the current thread if needed."""
+    try:
+        # Check if already initialized in this thread
+        Initializer.get_initializer()
+    except Exception:
+        # Not initialized in this thread, re-initialize
+        init_zoho()
+
+from zohocrmsdk.src.com.zoho.crm.api.record import Field
+
 def _sync_create_lead(client_data: Dict[str, Any]) -> Optional[str]:
     try:
+        _ensure_zoho_initialized()
+        print("[Zoho] Creating lead for: " + client_data.get("company_name", "Unknown"))
         record_operations = RecordOperations("Leads")
         request = BodyWrapper()
         lead = Record()
@@ -60,29 +73,40 @@ def _sync_create_lead(client_data: Dict[str, Any]) -> Optional[str]:
         last_name = name_parts[-1]
         first_name = name_parts[0] if len(name_parts) > 1 else ""
         
-        lead.add_field_value("Last_Name", last_name)
+        # Use Field objects for v7 SDK
+        lead.add_field_value(Field.Leads.last_name(), last_name)
         if first_name:
-            lead.add_field_value("First_Name", first_name)
+            lead.add_field_value(Field.Leads.first_name(), first_name)
             
-        lead.add_field_value("Company", client_data.get("company_name", "Unknown"))
-        lead.add_field_value("Email", client_data.get("email", ""))
+        lead.add_field_value(Field.Leads.company(), client_data.get("company_name", "Unknown"))
+        lead.add_field_value(Field.Leads.email(), client_data.get("email", ""))
         
         if client_data.get("phone"):
-            lead.add_field_value("Phone", client_data["phone"])
+            lead.add_field_value(Field.Leads.phone(), client_data["phone"])
         if client_data.get("website"):
-            lead.add_field_value("Website", client_data["website"])
+            lead.add_field_value(Field.Leads.website(), client_data["website"])
         
         request.set_data([lead])
         
         response = record_operations.create_records(request)
         if response is not None:
-            if response.get_status_code() in [200, 201]:
+            status_code = response.get_status_code()
+            print(f"[Zoho] Response status: {status_code}")
+            if status_code in [200, 201]:
                 action_responses = response.get_object().get_data()
                 if action_responses and len(action_responses) > 0:
                     success_response = action_responses[0]
-                    return str(success_response.get_details().get("id"))
+                    zoho_id = str(success_response.get_details().get("id"))
+                    print(f"[Zoho] Lead created successfully! ID: {zoho_id}")
+                    return zoho_id
+            else:
+                print(f"[Zoho] ERROR: Non-success status code: {status_code}")
+        else:
+            print("[Zoho] ERROR: Response was None")
     except Exception as e:
-        print(f"Error creating Zoho lead: {e}")
+        print(f"[Zoho] ERROR creating lead: {e}")
+        import traceback
+        traceback.print_exc()
     
     return None
 
@@ -95,6 +119,8 @@ async def create_lead(client_data: Dict[str, Any]) -> Optional[str]:
 
 def _sync_delete_lead(zoho_lead_id: str) -> bool:
     try:
+        _ensure_zoho_initialized()
+        print(f"[Zoho] Deleting lead: {zoho_lead_id}")
         record_operations = RecordOperations("Leads")
         # Ensure ID is a valid integer since Zoho expects int for ID
         lead_id_int = int(zoho_lead_id)
@@ -102,9 +128,12 @@ def _sync_delete_lead(zoho_lead_id: str) -> bool:
         
         if response is not None:
             if response.get_status_code() in [200, 201]:
+                print(f"[Zoho] Lead deleted successfully: {zoho_lead_id}")
                 return True
+            else:
+                print(f"[Zoho] ERROR: Delete returned status {response.get_status_code()}")
     except Exception as e:
-        print(f"Error deleting Zoho lead: {e}")
+        print(f"[Zoho] ERROR deleting lead: {e}")
     
     return False
 

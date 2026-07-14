@@ -1,29 +1,69 @@
+'use client';
+
+import { useEffect, useState, useCallback, use } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, RefreshCw, FileText, Bot, Briefcase } from 'lucide-react';
+import { ArrowLeft, ExternalLink, RefreshCw, FileText, Bot, Briefcase, CheckCircle } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { api, Client, Workflow, Research, Proposal } from '@/services/api';
 import SyncZohoButton from './SyncZohoButton';
 
-export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  
-  let client: Client | null = null;
-  let workflow: Workflow | null = null;
-  let research: Research | null = null;
-  let proposal: Proposal | null = null;
+export default function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const clientId = Number(id);
 
-  try {
-    const clientId = Number(id);
-    client = await api.getClient(clientId);
-    
-    const workflows = await api.getWorkflowByClientId(clientId).catch(() => []);
-    workflow = workflows.length > 0 ? workflows[0] : null;
-    
-    research = await api.getResearch(clientId).catch(() => null);
-    proposal = await api.getProposal(clientId).catch(() => null);
-  } catch (err) {
-    console.error("Error fetching client details:", err);
+  const [client, setClient] = useState<Client | null>(null);
+  const [workflow, setWorkflow] = useState<Workflow | null>(null);
+  const [research, setResearch] = useState<Research | null>(null);
+  const [proposal, setProposal] = useState<Proposal | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const fetchedClient = await api.getClient(clientId);
+      setClient(fetchedClient);
+
+      try {
+        const wf = await api.getWorkflowByClientId(clientId);
+        setWorkflow(wf);
+      } catch { setWorkflow(null); }
+
+      try {
+        const res = await api.getResearch(clientId);
+        setResearch(res);
+      } catch { setResearch(null); }
+
+      try {
+        const prop = await api.getProposal(clientId);
+        setProposal(prop);
+      } catch { setProposal(null); }
+    } catch (err) {
+      console.error("Error fetching client details:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [clientId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Auto-poll every 5 seconds while the pipeline is still running
+  useEffect(() => {
+    const isStillRunning = !research || !proposal || (workflow && workflow.status === 'running');
+    if (!loading && isStillRunning) {
+      const interval = setInterval(fetchData, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [loading, research, proposal, workflow, fetchData]);
+
+  if (loading) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center', color: 'hsl(var(--text-muted))' }}>
+        <RefreshCw size={32} className="animate-spin" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+        <p>Loading client details...</p>
+      </div>
+    );
   }
 
   if (!client) {
@@ -95,7 +135,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             {proposal ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                  <p style={{ fontSize: '0.9375rem', fontStyle: 'italic', color: 'hsl(var(--text-secondary))' }}>
-                   "{proposal.executive_summary || 'No executive summary available.'}"
+                   &quot;{proposal.executive_summary || 'No executive summary available.'}&quot;
                  </p>
                  
                  <div>
@@ -207,6 +247,3 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
     </div>
   );
 }
-
-// Needed because we used an icon not imported at top
-import { CheckCircle } from 'lucide-react';
