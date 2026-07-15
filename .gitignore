@@ -54,3 +54,4 @@ Thumbs.db
 # Zoho SDK generated files
 zoho_tokens.txt
 zoho_sdk.log
+backend/resources/*.json
