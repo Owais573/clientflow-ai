@@ -8,7 +8,8 @@ async def trigger_workflow(
     workflow_id: int, 
     company_name: str, 
     contact_email: str,
-    research_summary: Optional[str] = None
+    research_summary: Optional[str] = None,
+    proposal_draft: Optional[str] = None
 ) -> Optional[str]:
     """
     Triggers the n8n client onboarding workflow via webhook.
@@ -23,7 +24,8 @@ async def trigger_workflow(
         "workflow_id": workflow_id,
         "company_name": company_name,
         "contact_email": contact_email,
-        "research_summary": research_summary or ""
+        "research_summary": research_summary or "",
+        "proposal_draft": proposal_draft or ""
     }
     
     try:

@@ -457,9 +457,12 @@ All major external API integrations have been implemented using official SDKs or
   - Updated Zoho CRM SDK usage to v7 API patterns (`Field.Leads.*`).
   - Fixed a critical Windows encoding crash by removing Unicode emojis from backend console logs that were silently killing the background worker during lead creation.
   - Implemented thread-safe Zoho SDK re-initialization for `asyncio.to_thread()` background tasks.
+  - Prevented SDK caching files containing PII (Base64 encoded email addresses) from leaking into version control by adding them to `.gitignore` and purging from Git history.
 - **Frontend Real-Time Polling**: Fixed the infinite loading spinner on the proposal generation page. Transitioned the client detail page from a static Server Component to a Client Component with automatic 5-second polling to reflect background AI pipeline updates in real-time.
 - **API Routing Consistency**: Corrected mismatched pluralization in the frontend API calls (e.g., calling `/api/proposals/` instead of `/api/proposal/`).
-- **Workflow State Management**: Ensured the backend properly marks workflow status as `completed` with a `completed_at` timestamp after the n8n webhook successfully triggers, unblocking the UI state machine.
+- **Workflow State Management & n8n Integration**: 
+  - Ensured the backend properly marks workflow status as `completed` with a `completed_at` timestamp after the n8n webhook successfully triggers, unblocking the UI state machine.
+  - Updated the Fast API background pipeline to correctly pass the `proposal_draft` payload to the n8n webhook, ensuring Google Docs nodes generate documents with actual content rather than creating blank files.
 
 ---
 

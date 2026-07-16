@@ -100,7 +100,8 @@ async def run_pipeline(client_id: int, workflow_id: int):
                 workflow_id=workflow_id, 
                 company_name=client.company_name,
                 contact_email=client.email,
-                research_summary=research.ai_summary
+                research_summary=research.ai_summary,
+                proposal_draft=proposal.proposal_draft
             )
             
             if n8n_exec_id:
