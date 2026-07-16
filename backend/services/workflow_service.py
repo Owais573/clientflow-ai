@@ -95,13 +95,19 @@ async def run_pipeline(client_id: int, workflow_id: int):
             result = await db.execute(select(Client).where(Client.id == client_id))
             client = result.scalar_one_or_none()
             
+            # Construct a full proposal text for n8n to insert into Google Docs
+            proposal_text = f"Proposal for {client.company_name}\n\n"
+            proposal_text += f"EXECUTIVE SUMMARY\n{proposal.executive_summary}\n\n"
+            proposal_text += f"SCOPE OF WORK\n{proposal.scope}\n\n"
+            proposal_text += f"TIMELINE\n{proposal.timeline}\n"
+            
             n8n_exec_id = await trigger_n8n(
                 client_id=client_id, 
                 workflow_id=workflow_id, 
                 company_name=client.company_name,
                 contact_email=client.email,
                 research_summary=research.ai_summary,
-                proposal_draft=proposal.proposal_draft
+                proposal_draft=proposal_text
             )
             
             if n8n_exec_id:
