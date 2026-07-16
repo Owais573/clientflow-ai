@@ -40,7 +40,7 @@ export default async function WorkflowsPage() {
                 <th style={{ padding: '1rem', color: 'hsl(var(--text-secondary))', fontWeight: 500 }}>Client</th>
                 <th style={{ padding: '1rem', color: 'hsl(var(--text-secondary))', fontWeight: 500 }}>Current Step</th>
                 <th style={{ padding: '1rem', color: 'hsl(var(--text-secondary))', fontWeight: 500 }}>Status</th>
-                <th style={{ padding: '1rem', color: 'hsl(var(--text-secondary))', fontWeight: 500 }}>Started</th>
+                <th style={{ padding: '1rem', color: 'hsl(var(--text-secondary))', fontWeight: 500 }}>Timing</th>
                 <th style={{ padding: '1rem', textAlign: 'right' }}>n8n</th>
               </tr>
             </thead>
@@ -52,7 +52,17 @@ export default async function WorkflowsPage() {
                   </td>
                 </tr>
               ) : (
-                workflows.map((wf) => (
+                workflows.map((wf) => {
+                  let durationStr = '';
+                  if (wf.started_at && wf.completed_at) {
+                    const start = new Date(wf.started_at).getTime();
+                    const end = new Date(wf.completed_at).getTime();
+                    const diffSeconds = Math.floor((end - start) / 1000);
+                    if (diffSeconds < 60) durationStr = `${diffSeconds}s`;
+                    else durationStr = `${Math.floor(diffSeconds / 60)}m ${diffSeconds % 60}s`;
+                  }
+                  
+                  return (
                   <tr key={wf.id} style={{ 
                     borderBottom: '1px solid hsl(var(--border-light))',
                     transition: 'background 0.2s ease',
@@ -75,7 +85,12 @@ export default async function WorkflowsPage() {
                       <StatusBadge status={wf.status} />
                     </td>
                     <td style={{ padding: '1rem', color: 'hsl(var(--text-secondary))', fontSize: '0.875rem' }}>
-                      {wf.started_at ? new Date(wf.started_at).toLocaleString() : '-'}
+                      {wf.started_at ? (
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span>{new Date(wf.started_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                          {durationStr && <span style={{ fontSize: '0.75rem', color: 'hsl(var(--accent-primary))' }}>Duration: {durationStr}</span>}
+                        </div>
+                      ) : '-'}
                     </td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>
                       {wf.n8n_execution_id ? (
@@ -87,7 +102,7 @@ export default async function WorkflowsPage() {
                       )}
                     </td>
                   </tr>
-                ))
+                )})
               )}
             </tbody>
           </table>

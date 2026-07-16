@@ -68,7 +68,23 @@ export default async function ActivitiesPage() {
                         {getIcon(act.level)}
                       </td>
                       <td style={{ padding: '1rem', fontWeight: 500 }}>
-                        {act.message}
+                        <div style={{ marginBottom: act.metadata_info ? '0.5rem' : '0' }}>{act.message}</div>
+                        {act.metadata_info && Object.keys(act.metadata_info).length > 0 && (
+                          <div style={{ 
+                            fontSize: '0.75rem', 
+                            background: 'hsl(var(--bg-tertiary) / 0.5)', 
+                            padding: '0.75rem', 
+                            borderRadius: 'var(--radius-sm)',
+                            border: '1px solid hsl(var(--border-light))',
+                            color: 'hsl(var(--text-secondary))',
+                            marginTop: '0.5rem',
+                            fontFamily: 'monospace',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-all'
+                          }}>
+                            {JSON.stringify(act.metadata_info, null, 2)}
+                          </div>
+                        )}
                       </td>
                       <td style={{ padding: '1rem' }}>
                         {client ? (

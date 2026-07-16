@@ -24,6 +24,9 @@ async def n8n_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         if workflow:
             if status:
                 workflow.status = status
+                if status == "completed":
+                    from datetime import datetime
+                    workflow.completed_at = datetime.utcnow()
             if step:
                 workflow.current_step = step
             await db.commit()

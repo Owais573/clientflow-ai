@@ -144,7 +144,7 @@
         "url": "http://host.docker.internal:8000/api/webhooks/n8n",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"workflow_id\": {{ $('Webhook Trigger').item.json.body.workflow_id }},\n  \"status\": \"running\",\n  \"step\": \"n8n_pipeline_completed\",\n  \"message\": \"n8n workflow executed successfully (Drive, Docs, Slack, Gmail)\"\n}",
+        "jsonBody": "={\n  \"workflow_id\": {{ $('Webhook Trigger').item.json.body.workflow_id }},\n  \"status\": \"completed\",\n  \"step\": \"n8n_pipeline_completed\",\n  \"message\": \"n8n workflow executed successfully (Drive, Docs, Slack, Gmail)\"\n}",
         "options": {}
       },
       "id": "6",
