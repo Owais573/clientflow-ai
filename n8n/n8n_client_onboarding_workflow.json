@@ -36,7 +36,8 @@
           "id": "",
           "name": "Slack account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -85,7 +86,7 @@
       "parameters": {
         "resource": "document",
         "operation": "update",
-        "documentURL": "={{ $json.documentId }}",
+        "documentURL": "={{ $json.id }}",
         "actionsUi": {
           "actionFields": [
             {
@@ -112,7 +113,8 @@
           "id": "",
           "name": "Google Docs account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
