@@ -463,6 +463,11 @@ All major external API integrations have been implemented using official SDKs or
 - **Workflow State Management & n8n Integration**: 
   - Ensured the backend properly marks workflow status as `completed` with a `completed_at` timestamp after the n8n webhook successfully triggers, unblocking the UI state machine.
   - Updated the Fast API background pipeline to correctly pass the `proposal_draft` payload to the n8n webhook, ensuring Google Docs nodes generate documents with actual content rather than creating blank files.
+  - Added `continueOnFail` error handlers to parallel branch nodes (Slack Notification) preventing non-critical API failures from aborting the entire pipeline (e.g., preventing Slack channel errors from aborting Gmail sends).
+  - Fixed Google Docs `Append Text` Document ID mapping to ensure it resolves the created document properly.
+- **Frontend Dashboard UX Enhancements**:
+  - Enhanced the Workflow History page with dynamic `Timing` columns displaying precise durations (Started -> Completed) for executed pipelines.
+  - Revamped the Activity Log dashboard with expandable, syntax-highlighted JSON rendering for deep-dive metadata inspection.
 
 ---
 
