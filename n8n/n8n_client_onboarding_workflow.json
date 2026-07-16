@@ -83,10 +83,20 @@
     },
     {
       "parameters": {
-        "resource": "text",
-        "operation": "append",
-        "documentId": "={{ $json.documentId }}",
-        "text": "={{ $('Webhook Trigger').item.json.body.proposal_draft }}",
+        "resource": "document",
+        "operation": "update",
+        "documentURL": "={{ $json.documentId }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "object": "text",
+              "text": "={{ $('Webhook Trigger').item.json.body.proposal_draft }}",
+              "locationChoice": "endOfSegmentLocation",
+              "insertSegment": "body"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "7",
