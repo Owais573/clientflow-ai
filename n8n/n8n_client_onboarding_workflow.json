@@ -83,6 +83,29 @@
     },
     {
       "parameters": {
+        "resource": "text",
+        "operation": "append",
+        "documentId": "={{ $json.documentId }}",
+        "text": "={{ $('Webhook Trigger').item.json.body.proposal_draft }}",
+        "options": {}
+      },
+      "id": "7",
+      "name": "Google Docs Append Text",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 1,
+      "position": [
+        950,
+        350
+      ],
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
         "sendTo": "={{ $('Webhook Trigger').item.json.body.contact_email }}",
         "subject": "=Welcome to ClientFlow AI, {{ $('Webhook Trigger').item.json.body.company_name }}!",
         "message": "=Hi there,\n\nWelcome to ClientFlow AI! We are thrilled to start working with you. Our team is currently reviewing your project details and will share a customized proposal with you shortly.\n\nBest regards,\nThe Team",
@@ -117,7 +140,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        1000,
+        1150,
         350
       ]
     }
@@ -156,6 +179,17 @@
       ]
     },
     "Google Docs Proposal": {
+      "main": [
+        [
+          {
+            "node": "Google Docs Append Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs Append Text": {
       "main": [
         [
           {

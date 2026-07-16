@@ -22,7 +22,7 @@ The workflow contains several nodes that interact with external services. You wi
 This node sends real-time alerts when a new client is onboarded.
 1. Double-click the **Slack Notification** node.
 2. Under "Credential to connect with", click **Create New Credential**.
-3. You can use an **OAuth2 API** or a **Bot Token**. If you created a Slack App as per the `API_SETUP_GUIDE.md`, provide the Bot Token here.
+3. Select **Slack API (Auth Tokens)** (do NOT use a Webhook URL). If you created a Slack App as per the `API_SETUP_GUIDE.md`, provide your Bot Token here.
 4. Connect and save. The node is pre-configured to use the channel you defined in your backend `.env` (defaults to `#clientflow-alerts`).
 
 ### B. Google Drive & Docs Nodes
@@ -33,6 +33,7 @@ These nodes create a dedicated client folder and generate the initial proposal d
 4. Click **Sign in with Google** and complete the OAuth flow.
 5. Save the credential.
 6. Open the **Google Docs Proposal** node and select the **exact same credential** you just created.
+7. Open the **Google Docs Append Text** node and select the **exact same credential** again.
 
 ### C. Gmail Node
 This node sends a welcome email to the client automatically.
